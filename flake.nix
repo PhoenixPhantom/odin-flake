@@ -28,7 +28,7 @@
             };
 
             nativeBuildInputs = [
-               makeBinaryWrapper which gnumake
+               makeBinaryWrapper which gnumake llvmPackages.clang
             ];
             postPatch = ''
                substituteInPlace build_odin.sh \
