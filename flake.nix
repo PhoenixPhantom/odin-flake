@@ -30,6 +30,11 @@
             nativeBuildInputs = [
                makeBinaryWrapper which gnumake
             ];
+            postPatch = ''
+               substituteInPlace build_odin.sh \
+               --replace-fail '-framework System' '-lSystem'
+               patchShebangs build_odin.sh
+            '';
 
             LLVM_CONFIG = "${llvmPackages.llvm.dev}/bin/llvm-config";
             dontConfigure = true;
