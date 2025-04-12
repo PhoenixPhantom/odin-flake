@@ -18,7 +18,7 @@
          let
             odin-version = "dev-2025-04";
             hashes = {
-               "dev-2025-04" = "sha256-hdl9i/Zyto+WDQLfdAOmrdE4BKX8rM/+e6Ta3jsFgxg=";
+               "dev-2025-04" = "sha256-dVC7MgaNdgKy3X9OE5ZcNCPnuDwqXszX9iAoUglfz2k=";
                "dev-2025-03" = "sha256-QmbKbhZglucVpsdlyxJsH2bslhqmd0nuMPC+E0dTpiY=";
             };
          in
