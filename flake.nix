@@ -4,7 +4,7 @@
       nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
       flake-utils.url = "github:numtide/flake-utils";
    };
-   outputs = { self, nixpkgs, flake-utils }:
+   outputs = { self, nixpkgs, flake-utils, odin-version }:
       let
          overlays = [];
          system = "x86_64-linux";
@@ -16,15 +16,19 @@
       {
          packages.${system}.default =
          let
-            version = "dev-2025-03";
+            odin-version = "dev-2025-04";
+            hashes = {
+               "dev-2025-04" = "sha256-hdl9i/Zyto+WDQLfdAOmrdE4BKX8rM/+e6Ta3jsFgxg=";
+               "dev-2025-03" = "sha256-QmbKbhZglucVpsdlyxJsH2bslhqmd0nuMPC+E0dTpiY=";
+            };
          in
          stdenv.mkDerivation {
             name = "odin";
             src = fetchFromGitHub {
                owner = "odin-lang";
                repo = "Odin";
-               rev = version;
-               hash = "sha256-QmbKbhZglucVpsdlyxJsH2bslhqmd0nuMPC+E0dTpiY=";
+               rev = odin-version;
+               hash = hashes.${odin-version};
             };
 
             nativeBuildInputs = [
