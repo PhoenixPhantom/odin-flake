@@ -1,7 +1,7 @@
 # flake.nix
 {
    inputs = {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+      nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
       flake-utils.url = "github:numtide/flake-utils";
    };
    outputs = { self, nixpkgs, flake-utils }:
@@ -18,6 +18,7 @@
          let
             odin-version = "dev-2025-04";
             hashes = {
+               "dev-2025-06" = "sha256-Dhy62+ccIjXUL/lK8IQ+vvGEsTrd153tPp4WIdl3rh4="; # currently not compiling for me (gb_fprintf_va can never be inlined ...)
                "dev-2025-04" = "sha256-dVC7MgaNdgKy3X9OE5ZcNCPnuDwqXszX9iAoUglfz2k=";
                "dev-2025-03" = "sha256-QmbKbhZglucVpsdlyxJsH2bslhqmd0nuMPC+E0dTpiY=";
             };
@@ -31,19 +32,18 @@
                hash = hashes.${odin-version};
             };
 
+            postPatch = ''
+               patchShebangs --build build_odin.sh
+               '';
+
+            LLVM_CONFIG = lib.getExe' llvmPackages.llvm.dev "llvm-config";
+
+            dontConfigure = true;
+
+            buildFlags = [ "release" ];
+
             nativeBuildInputs = [
                makeBinaryWrapper which gnumake llvmPackages.clang
-            ];
-            postPatch = ''
-               substituteInPlace build_odin.sh \
-               --replace-fail '-framework System' '-lSystem'
-               patchShebangs build_odin.sh
-            '';
-
-            LLVM_CONFIG = "${llvmPackages.llvm.dev}/bin/llvm-config";
-            dontConfigure = true;
-            buildFlags = [
-               "release"
             ];
 
             installPhase = ''
@@ -64,9 +64,10 @@
                ])} \
                --set-default ODIN_ROOT $out/share
 
-               make -C $out/share/vendor/stb/src
+               make -C "$out/share/vendor/stb/src"
 
-               make -C $out/share/vendor/cgltf/src
+               make -C "$out/share/vendor/cgltf/src"
+               make -C "$out/share/vendor/miniaudio/src/"
 
                runHook postInstall
                '';
