@@ -5,81 +5,6 @@
       flake-utils.url = "github:numtide/flake-utils";
    };
    # until odin reliably builds again
-#    outputs = { self, nixpkgs, flake-utils }:
-#       let
-#          overlays = [];
-#          system = "x86_64-linux";
-#          pkgs = import nixpkgs {
-#             inherit system overlays;
-#          };
-#       in
-#       with pkgs;
-#       {
-#          packages.${system}.default =
-#          let
-#             odin-version = "dev-2025-07";
-#             hashes = {
-#                "dev-2025-07" = "sha256-4jhxvQHirNm4B4Wf5Ak0lhAbwaRw6ajWA0JhIn1NYwM=";
-#                "dev-2025-04" = "sha256-dVC7MgaNdgKy3X9OE5ZcNCPnuDwqXszX9iAoUglfz2k=";
-#                "dev-2025-03" = "sha256-QmbKbhZglucVpsdlyxJsH2bslhqmd0nuMPC+E0dTpiY=";
-#             };
-#          in
-#          stdenv.mkDerivation {
-#             name = "odin";
-#             src = fetchFromGitHub {
-#                owner = "odin-lang";
-#                repo = "Odin";
-#                rev = odin-version;
-#                hash = hashes.${odin-version};
-#             };
-#
-#             nativeBuildInputs = [
-#                makeBinaryWrapper which gnumake llvmPackages_20.clang
-#             ];
-#             postPatch = ''
-#                substituteInPlace build_odin.sh \
-#                --replace-fail '-framework System' '-lSystem'
-#                patchShebangs build_odin.sh
-#             '';
-#
-#             LLVM_CONFIG = "${llvmPackages.llvm.dev}/bin/llvm-config";
-#             dontConfigure = true;
-#             buildFlags = [
-#                "release"
-#             ];
-#
-#             installPhase = ''
-#                runHook preInstall
-#
-#                mkdir -p $out/bin
-#                cp odin $out/bin/odin
-#
-#                mkdir -p $out/share
-#                cp -r {base,core,vendor,shared} $out/share
-#
-#                wrapProgram $out/bin/odin \
-#                --prefix PATH : ${lib.makeBinPath (with llvmPackages; [
-#                      bintools
-#                      llvm
-#                      clang
-#                      lld
-#                ])} \
-#                --set-default ODIN_ROOT $out/share
-#
-#                make -C $out/share/vendor/stb/src
-#
-#                make -C $out/share/vendor/cgltf/src
-#
-#                runHook postInstall
-#                '';
-#          };
-#          overlays = {
-#             default = final: prev: {
-#                odin = self.packages.${prev.system}.default;
-#             };
-#          };
-#       };
-# }
    outputs = { self, nixpkgs, flake-utils }:
       let
          overlays = [];
@@ -90,74 +15,95 @@
       in
       with pkgs;
       {
-         packages.${system}.default =
-         let
-            odin-version = "dev-2025-07";
-            hashes = {
-               "dev-2025-07" = "sha256-n5qqjYUnt9Bo4rV+hNUtqGzKfxePHnz3HOS/solL+Uc="; # just as in 2025-07
-               "dev-2025-06" = "sha256-EZT2v1uRQQ5+CxiJaCizf1JtmPbCSsz94JAgJXqhQ6s="; # currently not compiling for me (gb_fprintf_va can never be inlined ...)
-               "dev-2025-04" = "sha256-dVC7MgaNdgKy3X9OE5ZcNCPnuDwqXszX9iAoUglfz2k=";
-               "dev-2025-03" = "sha256-QmbKbhZglucVpsdlyxJsH2bslhqmd0nuMPC+E0dTpiY=";
-            };
-         in
-         stdenv.mkDerivation {
-            name = "odin";
-            # src = fetchFromGitHub {
-            #    owner = "odin-lang";
-            #    repo = "Odin";
-            #    rev = odin-version;
-            #    hash = hashes.${odin-version};
-            # };
-
-            src = fetchzip {
-               url = "https://github.com/odin-lang/Odin/releases/download/dev-2025-07/odin-linux-amd64-${odin-version}.tar.gz";
-               sha256 = hashes.${odin-version};
-            };
-
-            # postPatch = ''
-            #    patchShebangs --build build_odin.sh
-            #    '';
-            #
-            # LLVM_CONFIG = lib.getExe' llvmPackages.llvm.dev "llvm-config";
-            #
-            # dontConfigure = true;
-            #
-            # buildFlags = [ "release" ];
-            #
-            nativeBuildInputs = [
-               makeBinaryWrapper which gnumake llvmPackages.clang gnutar
-            ];
-
-            installPhase = ''
-               runHook preInstall
-
-               mkdir -p $out/bin
-               cp odin $out/bin/odin
-
-               mkdir -p $out/share
-               cp -r {base,core,vendor,shared} $out/share
-
-               wrapProgram $out/bin/odin \
-               --prefix PATH : ${lib.makeBinPath (with llvmPackages; [
-                     bintools
-                     llvm
-                     clang
-                     lld
-               ])} \
-               --set-default ODIN_ROOT $out/share
-
-               make -C "$out/share/vendor/stb/src"
-
-               make -C "$out/share/vendor/cgltf/src"
-               make -C "$out/share/vendor/miniaudio/src/"
-
-               runHook postInstall
-               '';
-         };
          overlays = {
             default = final: prev: {
                odin = self.packages.${prev.system}.default;
             };
          };
+
+         packages.${system}.default =
+         let
+            inherit (llvmPackages) stdenv;
+         in
+         stdenv.mkDerivation (finalAttrs: {
+           pname = "odin";
+           version = "dev-2025-09";
+
+           src = fetchFromGitHub {
+             owner = "odin-lang";
+             repo = "Odin";
+             tag = finalAttrs.version;
+             hash = "sha256-PxegNMEzxytZtmhmzDgb1Umzx/9aUIlc9SDojRlZfsE=";
+           };
+
+            # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
+           patches = [
+             ./darwin-remove-impure-links.patch
+             ./system-raylib.patch
+           ];
+
+           postPatch = ''
+             substituteInPlace src/build_settings.cpp \
+               --replace-fail "arm64-apple-macosx" "arm64-apple-darwin"
+
+             rm -r vendor/raylib/{linux,macos,macos-arm64,wasm,windows}
+
+             patchShebangs --build build_odin.sh
+           '';
+
+           LLVM_CONFIG = lib.getExe' llvmPackages.llvm.dev "llvm-config";
+
+           dontConfigure = true;
+
+           buildFlags = [ "release" ];
+
+           nativeBuildInputs = [
+             makeBinaryWrapper
+             which
+           ];
+
+           installPhase = ''
+             runHook preInstall
+
+             mkdir -p $out/bin
+             cp odin $out/bin/odin
+
+             mkdir -p $out/share
+             cp -r {base,core,vendor,shared} $out/share
+
+             wrapProgram $out/bin/odin \
+               --prefix PATH : ${
+                 lib.makeBinPath (
+                   with llvmPackages;
+                   [
+                     bintools
+                     llvm
+                     clang
+                     lld
+                   ]
+                 )
+               } \
+               --set-default ODIN_ROOT $out/share
+
+             make -C "$out/share/vendor/cgltf/src/"
+             make -C "$out/share/vendor/stb/src/"
+             make -C "$out/share/vendor/miniaudio/src/"
+
+             runHook postInstall
+           '';
+
+           passthru.updateScript = nix-update-script { };
+
+           meta = {
+             description = "Fast, concise, readable, pragmatic and open sourced programming language";
+             downloadPage = "https://github.com/odin-lang/Odin";
+             homepage = "https://odin-lang.org/";
+             changelog = "https://github.com/odin-lang/Odin/releases/tag/${finalAttrs.version}";
+             license = lib.licenses.bsd3;
+             mainProgram = "odin";
+             platforms = lib.platforms.unix;
+             broken = stdenv.hostPlatform.isMusl;
+           };
+         });
       };
 }
