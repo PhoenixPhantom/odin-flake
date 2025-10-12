@@ -23,7 +23,7 @@
 
          packages.${system}.default =
          let
-            inherit (llvmPackages) stdenv;
+            inherit (llvmPackages_20) stdenv;
          in
          stdenv.mkDerivation (finalAttrs: {
            pname = "odin";
@@ -51,7 +51,7 @@
              patchShebangs --build build_odin.sh
            '';
 
-           LLVM_CONFIG = lib.getExe' llvmPackages_21.llvm.dev "llvm-config";
+           LLVM_CONFIG = lib.getExe' llvmPackages_20.llvm.dev "llvm-config";
 
            dontConfigure = true;
 
@@ -74,7 +74,7 @@
              wrapProgram $out/bin/odin \
                --prefix PATH : ${
                  lib.makeBinPath (
-                   with llvmPackages_21;
+                   with llvmPackages_20;
                    [
                      bintools
                      llvm
