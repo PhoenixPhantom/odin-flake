@@ -1,7 +1,7 @@
 # flake.nix
 {
    inputs = {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       flake-utils.url = "github:numtide/flake-utils";
    };
    # until odin reliably builds again
@@ -27,13 +27,13 @@
          in
          stdenv.mkDerivation (finalAttrs: {
            pname = "odin";
-           version = "dev-2025-09";
+           version = "dev-2025-10";
 
            src = fetchFromGitHub {
              owner = "odin-lang";
              repo = "Odin";
              tag = finalAttrs.version;
-             hash = "sha256-PxegNMEzxytZtmhmzDgb1Umzx/9aUIlc9SDojRlZfsE=";
+             hash = "sha256-mHu+kCdFEeWMZmQHCAqyv6hlIRFWuRX7rTIprohc7p0=";
            };
 
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
@@ -51,7 +51,7 @@
              patchShebangs --build build_odin.sh
            '';
 
-           LLVM_CONFIG = lib.getExe' llvmPackages.llvm.dev "llvm-config";
+           LLVM_CONFIG = lib.getExe' llvmPackages_21.llvm.dev "llvm-config";
 
            dontConfigure = true;
 
@@ -74,7 +74,7 @@
              wrapProgram $out/bin/odin \
                --prefix PATH : ${
                  lib.makeBinPath (
-                   with llvmPackages;
+                   with llvmPackages_21;
                    [
                      bintools
                      llvm
