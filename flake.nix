@@ -27,13 +27,14 @@
          in
          stdenv.mkDerivation (finalAttrs: {
            pname = "odin";
-           version = "dev-2025-10";
+           version = "dev-2025-12a";
 
            src = fetchFromGitHub {
              owner = "odin-lang";
              repo = "Odin";
-             tag = finalAttrs.version;
-             hash = "sha256-mHu+kCdFEeWMZmQHCAqyv6hlIRFWuRX7rTIprohc7p0=";
+             # tag = finalAttrs.version;
+             rev = "6ef91e26588fb3985eaa521c86d2ce2dcb2eabf1";
+             hash = "sha256-kwjiQ7IIBRpnMtQS2zgoHlaimQCdl/3Td+L83l1fhH4=";
            };
 
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
