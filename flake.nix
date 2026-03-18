@@ -23,18 +23,18 @@
 
          packages.${system}.default =
          let
-            inherit (llvmPackages_20) stdenv;
+            newestLlvm = llvmPackages_21;
+            inherit (newestLlvm) stdenv;
          in
          stdenv.mkDerivation (finalAttrs: {
            pname = "odin";
-           version = "dev-2025-12a";
+           version = "dev-2026-03";
 
            src = fetchFromGitHub {
              owner = "odin-lang";
              repo = "Odin";
-             # tag = finalAttrs.version;
-             rev = "6ef91e26588fb3985eaa521c86d2ce2dcb2eabf1";
-             hash = "sha256-kwjiQ7IIBRpnMtQS2zgoHlaimQCdl/3Td+L83l1fhH4=";
+             tag = finalAttrs.version;
+             hash = "sha256-y9pMArcBlhgEIECqk7I3QsyANUi+XwwFaUvdEG/brWI=";
            };
 
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
@@ -52,7 +52,7 @@
              patchShebangs --build build_odin.sh
            '';
 
-           LLVM_CONFIG = lib.getExe' llvmPackages_20.llvm.dev "llvm-config";
+           LLVM_CONFIG = lib.getExe' newestLlvm.llvm.dev "llvm-config";
 
            dontConfigure = true;
 
@@ -75,7 +75,7 @@
              wrapProgram $out/bin/odin \
                --prefix PATH : ${
                  lib.makeBinPath (
-                   with llvmPackages_20;
+                   with newestLlvm;
                    [
                      bintools
                      llvm
