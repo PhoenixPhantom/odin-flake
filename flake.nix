@@ -40,7 +40,7 @@
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
            patches = [
              ./darwin-remove-impure-links.patch
-             ./system-raylib.patch
+             # ./system-raylib.patch
            ];
 
            postPatch = ''
