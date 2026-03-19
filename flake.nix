@@ -33,8 +33,8 @@
            src = fetchFromGitHub {
              owner = "odin-lang";
              repo = "Odin";
-             tag = finalAttrs.version;
-             hash = "sha256-y9pMArcBlhgEIECqk7I3QsyANUi+XwwFaUvdEG/brWI=";
+             rev = "a329d0f4f0264ebfcbae8e2ae1859d3aa4a81563";
+             hash = "sha256-PBpsDCY32Ey/wCL0aqmis8EWUaJGWwvoygYCJFkkwpw=";
            };
 
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
