@@ -6,41 +6,35 @@
    };
    # until odin reliably builds again
    outputs = { self, nixpkgs, flake-utils }:
+   flake-utils.lib.eachDefaultSystem (system:
       let
          overlays = [];
-         system = "x86_64-linux";
          pkgs = import nixpkgs {
             inherit system overlays;
          };
       in
-      with pkgs;
-      {
-         overlays = {
-            default = final: prev: {
-               odin = self.packages.${prev.system}.default;
-            };
-         };
-
-         packages.${system}.default =
+      with pkgs; 
+      rec{
+         packages.default =
          let
-            newestLlvm = llvmPackages_21;
+            newestLlvm = llvmPackages_22;
             inherit (newestLlvm) stdenv;
          in
          stdenv.mkDerivation (finalAttrs: {
            pname = "odin";
-           version = "dev-2026-04";
+           version = "nightly-2026-04-17";
 
            src = fetchFromGitHub {
              owner = "odin-lang";
              repo = "Odin";
-             rev = "76eefe5a7e8a478ba2d15bd011a0d62ad6106311";
-             hash = "sha256-jAot3c9roU78ZdEbgO8sMFR40chb3Ua+VFniEe+GzL0=";
+             rev = "ef4241e00ac6c2690c99e5be62bd2dab6cf794f3";
+             hash = "sha256-QhmnGR9TT16alB0l8rbdgl9tYbLciXmeSA0vQmF1M50=";
            };
 
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
            patches = [
              ./darwin-remove-impure-links.patch
-             # ./system-raylib.patch
+             ./system-raylib.patch
            ];
 
            postPatch = ''
@@ -106,5 +100,16 @@
              broken = stdenv.hostPlatform.isMusl;
            };
          });
+         devShells.default = pkgs.mkShell {
+            name = "odin";
+            buildInputs = [ packages.default ];
+         };
+      }) // {
+      overlays = {
+         default = final: prev: {
+            odin = self.packages.${prev.system}.default;
+         };
       };
+   };
 }
+
