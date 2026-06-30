@@ -4,7 +4,6 @@
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       flake-utils.url = "github:numtide/flake-utils";
    };
-   # until odin reliably builds again
    outputs = { self, nixpkgs, flake-utils }:
    flake-utils.lib.eachDefaultSystem (system:
       let
@@ -22,13 +21,13 @@
          in
          stdenv.mkDerivation (finalAttrs: {
            pname = "odin";
-           version = "nightly-2026-04-17";
+           version = "nightly-2026-06-30";
 
            src = fetchFromGitHub {
              owner = "odin-lang";
              repo = "Odin";
-             rev = "ef4241e00ac6c2690c99e5be62bd2dab6cf794f3";
-             hash = "sha256-QhmnGR9TT16alB0l8rbdgl9tYbLciXmeSA0vQmF1M50=";
+             rev = "e276ce552bca8715c80f26f7e3cbdabc0f676b9e";
+             hash = "sha256-QYjP+RdES+TrmKSkIDK/r8eGVBgyUu1RMAi9CL4i9wc=";
            };
 
             # see the official package on https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/by-name/od/odin/package.nix#L90
